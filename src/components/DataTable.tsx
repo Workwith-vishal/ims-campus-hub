@@ -1,26 +1,28 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-interface Column<T> {
+export interface Column<T> {
   key: keyof T | string;
   label: string;
   render?: (item: T) => React.ReactNode;
 }
 
-interface Props<T> {
+interface Props<T extends { id: string }> {
   data: T[];
   columns: Column<T>[];
   searchKey?: keyof T;
   title: string;
   onAdd?: () => void;
+  onEdit?: (item: T) => void;
+  onDelete?: (item: T) => void;
   addLabel?: string;
   pageSize?: number;
 }
 
-export function DataTable<T extends { id: string }>({ data, columns, searchKey, title, onAdd, addLabel = 'Add New', pageSize = 10 }: Props<T>) {
+export function DataTable<T extends { id: string }>({ data, columns, searchKey, title, onAdd, onEdit, onDelete, addLabel = 'Add New', pageSize = 10 }: Props<T>) {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
 
@@ -31,6 +33,7 @@ export function DataTable<T extends { id: string }>({ data, columns, searchKey, 
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paged = filtered.slice(page * pageSize, (page + 1) * pageSize);
+  const showActions = !!(onEdit || onDelete);
 
   return (
     <div className="data-table-container">
@@ -64,12 +67,15 @@ export function DataTable<T extends { id: string }>({ data, columns, searchKey, 
                 {col.label}
               </TableHead>
             ))}
+            {showActions && (
+              <TableHead className="font-heading text-xs uppercase tracking-wider text-right">Actions</TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
           {paged.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={columns.length} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={columns.length + (showActions ? 1 : 0)} className="text-center py-8 text-muted-foreground">
                 No records found
               </TableCell>
             </TableRow>
@@ -81,6 +87,22 @@ export function DataTable<T extends { id: string }>({ data, columns, searchKey, 
                     {col.render ? col.render(item) : String((item as Record<string, unknown>)[String(col.key)] ?? '')}
                   </TableCell>
                 ))}
+                {showActions && (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      {onEdit && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => onDelete(item)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           )}
