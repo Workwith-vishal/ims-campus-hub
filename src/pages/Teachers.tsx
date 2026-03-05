@@ -49,7 +49,7 @@ export default function TeachersPage() {
         <h1 className="page-title">Teacher Management</h1>
         <p className="page-description">Manage all faculty members</p>
       </div>
-      <DataTable
+      <DataTable<Teacher>
         data={teachers}
         title="All Teachers"
         searchKey="name"
