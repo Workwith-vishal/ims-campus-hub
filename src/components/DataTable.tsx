@@ -10,7 +10,7 @@ interface Column<T> {
   render?: (item: T) => React.ReactNode;
 }
 
-interface Props<T> {
+interface Props<T extends { id: string }> {
   data: T[];
   columns: Column<T>[];
   searchKey?: keyof T;
