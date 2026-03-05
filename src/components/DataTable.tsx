@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Plus, ChevronLeft, ChevronRight, Pencil, Trash2 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-interface Column<T> {
+interface Column<T extends { id: string }> {
   key: keyof T | string;
   label: string;
   render?: (item: T) => React.ReactNode;
